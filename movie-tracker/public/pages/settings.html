@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mTrack — Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('mtrack-theme') || 'netflix');</script>
+</head>
+<body class="settings-page">
+
+<nav class="nav scrolled">
+    <div class="nav-left">
+        <a href="/pages/dashboard.html" class="nav-logo"><span class="material-icons-round">play_circle</span><span class="logo-text">mTrack</span></a>
+    </div>
+    <div class="nav-right">
+        <a href="/pages/dashboard.html" class="nav-icon-btn"><span class="material-icons-round">arrow_back</span></a>
+    </div>
+</nav>
+
+<main class="settings-content">
+    <h1 class="settings-title"><span class="material-icons-round">settings</span> Settings</h1>
+
+    <!-- Profile Section -->
+    <section class="settings-section">
+        <h2><span class="material-icons-round">person</span> Profile</h2>
+        <div class="settings-card">
+            <div class="setting-row">
+                <div class="setting-info"><h3>Username</h3><p>Your display name</p></div>
+                <div class="setting-control"><input type="text" id="setUsername" class="setting-input" readonly></div>
+            </div>
+            <div class="setting-row">
+                <div class="setting-info"><h3>Display Name</h3><p>Custom name shown in the app</p></div>
+                <div class="setting-control"><input type="text" id="setDisplayName" class="setting-input" placeholder="Enter display name"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section class="settings-section">
+        <h2><span class="material-icons-round">vpn_key</span> API Configuration</h2>
+        <div class="settings-card">
+            <div class="setting-row">
+                <div class="setting-info"><h3>TMDB API Key</h3><p>Required for movie/TV data. <a href="https://www.themoviedb.org/settings/api" target="_blank">Get one free</a></p></div>
+                <div class="setting-control"><input type="text" id="setApiKey" class="setting-input" placeholder="Enter TMDB API key"></div>
+            </div>
+            <div class="setting-row">
+                <div class="setting-info"><h3>Default Streaming Source</h3><p>Which player opens by default</p></div>
+                <div class="setting-control">
+                    <select id="setDefaultSource" class="setting-select">
+                        <option value="spencerdevs">SpencerDevs</option>
+                        <option value="vidfast">VidFast</option>
+                        <option value="mapple">Mapple</option>
+                        <option value="vidking">VidKing</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theme Section -->
+    <section class="settings-section">
+        <h2><span class="material-icons-round">palette</span> Theme</h2>
+        <div class="theme-grid">
+            <div class="theme-card" data-theme="netflix">
+                <div class="theme-preview netflix-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">Netflix</span>
+                <span class="theme-desc">Classic dark red</span>
+            </div>
+
+            <div class="theme-card" data-theme="mtrack">
+                <div class="theme-preview mtrack-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">mTrack Blue</span>
+                <span class="theme-desc">Default blue theme</span>
+            </div>
+
+            <div class="theme-card" data-theme="apple">
+                <div class="theme-preview apple-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">Apple TV+</span>
+                <span class="theme-desc">Glass & frost</span>
+            </div>
+
+            <div class="theme-card" data-theme="disney">
+                <div class="theme-preview disney-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">Disney+</span>
+                <span class="theme-desc">Deep blue magic</span>
+            </div>
+
+            <div class="theme-card" data-theme="prime">
+                <div class="theme-preview prime-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">Prime Video</span>
+                <span class="theme-desc">Dark teal</span>
+            </div>
+
+            <div class="theme-card" data-theme="custom">
+                <div class="theme-preview custom-preview">
+                    <div class="tp-nav"></div>
+                    <div class="tp-hero"></div>
+                    <div class="tp-row"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div>
+                </div>
+                <span class="theme-name">Custom</span>
+                <span class="theme-desc">Your own CSS</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom CSS -->
+    <section class="settings-section" id="customCssSection" style="display:none">
+        <h2><span class="material-icons-round">code</span> Custom CSS</h2>
+        <div class="settings-card">
+            <p class="setting-hint">Override any CSS variables or styles. Changes apply instantly.</p>
+            <textarea id="customCssInput" class="css-editor" placeholder="/* Your custom CSS here */
+:root {
+  --accent: #ff6b6b;
+  --bg: #0d1117;
+  --bg2: #161b22;
+}" rows="12"></textarea>
+        </div>
+    </section>
+
+    <!-- Danger Zone -->
+    <section class="settings-section">
+        <h2><span class="material-icons-round">warning</span> Account</h2>
+        <div class="settings-card">
+            <div class="setting-row">
+                <div class="setting-info"><h3>Sign Out</h3><p>Log out from your account</p></div>
+                <div class="setting-control"><button class="btn-outline red" id="logoutBtnSettings"><span class="material-icons-round">logout</span> Sign Out</button></div>
+            </div>
+        </div>
+    </section>
+
+    <button class="btn-main save-all" id="saveAllSettings"><span class="material-icons-round">save</span> Save Settings</button>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand"><span class="material-icons-round">play_circle</span> mTrack</div>
+        <div class="footer-links">
+            <a href="https://github.com/yourusername" target="_blank"><span class="material-icons-round">code</span> GitHub</a>
+            <a href="https://discord.gg/yourinvite" target="_blank"><span class="material-icons-round">forum</span> Discord</a>
+            <a href="https://reddit.com/u/yourusername" target="_blank"><span class="material-icons-round">public</span> Reddit</a>
+        </div>
+        <p class="footer-copy">Built with ♥ — © 2024 mTrack</p>
+    </div>
+</footer>
+
+<div class="toast" id="toast"><span class="material-icons-round" id="toastIcon">check_circle</span><span id="toastMsg"></span></div>
+
+<script src="/js/settings.js"></script>
+</body>
+</html>

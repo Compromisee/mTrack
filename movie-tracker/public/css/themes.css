@@ -1,0 +1,249 @@
+/* ================================================================
+   THEMES — Netflix, mTrack Blue, Apple TV+, Disney+, Prime, Custom
+   ================================================================ */
+
+/* ---- Netflix (Red) ---- */
+[data-theme="netflix"] {
+    --accent: #e50914;
+    --accent-hover: #f6121d;
+    --accent-glow: rgba(229,9,20,0.25);
+    --bg: #141414;
+    --bg2: #1a1a1a;
+    --bg3: #2a2a2a;
+    --bg4: #333;
+    --surface: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08);
+    --text: #fff;
+    --text2: #b3b3b3;
+    --text3: #777;
+    --glass-bg: rgba(26,26,26,0.85);
+    --glass-border: rgba(255,255,255,0.08);
+    --card-radius: 4px;
+}
+
+/* ---- mTrack Blue ---- */
+[data-theme="mtrack"] {
+    --accent: #2563eb;
+    --accent-hover: #3b82f6;
+    --accent-glow: rgba(37,99,235,0.25);
+    --bg: #0a0e17;
+    --bg2: #111827;
+    --bg3: #1a2236;
+    --bg4: #243049;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f4ff;
+    --text2: #94a3c4;
+    --text3: #5a6a8a;
+    --glass-bg: rgba(17,24,39,0.85);
+    --glass-border: rgba(255,255,255,0.07);
+    --card-radius: 6px;
+}
+
+/* ---- Apple TV+ (Glassmorphism) ---- */
+[data-theme="apple"] {
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --accent-glow: rgba(0,113,227,0.2);
+    --bg: #000;
+    --bg2: rgba(28,28,30,0.7);
+    --bg3: rgba(44,44,46,0.6);
+    --bg4: rgba(58,58,60,0.5);
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.1);
+    --text: #f5f5f7;
+    --text2: #a1a1a6;
+    --text3: #6e6e73;
+    --glass-bg: rgba(28,28,30,0.5);
+    --glass-border: rgba(255,255,255,0.12);
+    --card-radius: 12px;
+}
+
+[data-theme="apple"] .auth-card,
+[data-theme="apple"] .modal-box,
+[data-theme="apple"] .settings-card,
+[data-theme="apple"] .nav.scrolled {
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+}
+
+[data-theme="apple"] .nf-card-inner {
+    border-radius: 12px;
+}
+
+[data-theme="apple"] .nf-card:hover .nf-card-inner {
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+[data-theme="apple"] .nf-card-info,
+[data-theme="apple"] .nf-card:hover .nf-card-info {
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    background: rgba(28,28,30,0.65);
+}
+
+[data-theme="apple"] .stream-section,
+[data-theme="apple"] .detail-ratings {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-theme="apple"] .billboard::after {
+    background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+}
+
+[data-theme="apple"] .blob-1 { background: #0071e3; }
+[data-theme="apple"] .blob-2 { background: #bf5af2; }
+
+/* ---- Disney+ ---- */
+[data-theme="disney"] {
+    --accent: #0063e5;
+    --accent-hover: #0080ff;
+    --accent-glow: rgba(0,99,229,0.3);
+    --bg: #040714;
+    --bg2: #0c111b;
+    --bg3: #151c28;
+    --bg4: #1e2738;
+    --surface: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.06);
+    --text: #f9f9f9;
+    --text2: #9ba3b5;
+    --text3: #5a6277;
+    --glass-bg: rgba(12,17,27,0.85);
+    --glass-border: rgba(255,255,255,0.06);
+    --card-radius: 8px;
+}
+
+[data-theme="disney"] .blob-1 { background: #0063e5; }
+[data-theme="disney"] .blob-2 { background: #1ce783; }
+
+[data-theme="disney"] .nf-card-inner { border-radius: 8px; }
+
+[data-theme="disney"] .nf-card:hover .nf-card-inner {
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(249,249,249,0.15);
+}
+
+[data-theme="disney"] .billboard-fade {
+    background: linear-gradient(to top, #040714 0%, rgba(4,7,20,0.4) 50%, transparent 100%);
+}
+
+/* ---- Prime Video ---- */
+[data-theme="prime"] {
+    --accent: #00a8e1;
+    --accent-hover: #00bfff;
+    --accent-glow: rgba(0,168,225,0.25);
+    --bg: #0f171e;
+    --bg2: #1a242f;
+    --bg3: #243040;
+    --bg4: #2e3d50;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.06);
+    --text: #f2f4f5;
+    --text2: #8197a4;
+    --text3: #5a7080;
+    --glass-bg: rgba(26,36,47,0.85);
+    --glass-border: rgba(255,255,255,0.06);
+    --card-radius: 6px;
+}
+
+[data-theme="prime"] .blob-1 { background: #00a8e1; }
+[data-theme="prime"] .blob-2 { background: #f0b400; }
+
+[data-theme="prime"] .billboard-fade {
+    background: linear-gradient(to top, #0f171e 0%, rgba(15,23,30,0.4) 50%, transparent 100%);
+}
+
+/* ---- Custom Theme ---- */
+[data-theme="custom"] {
+    --accent: #8b5cf6;
+    --accent-hover: #a78bfa;
+    --accent-glow: rgba(139,92,246,0.25);
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --bg4: #30363d;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.06);
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --glass-bg: rgba(22,27,34,0.85);
+    --glass-border: rgba(255,255,255,0.06);
+    --card-radius: 8px;
+}
+
+/* ================================================================
+   THEME PREVIEW CARDS (Settings Page)
+   ================================================================ */
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.theme-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.theme-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+.theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 24px var(--accent-glow); }
+
+.theme-preview {
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.tp-nav { height: 12px; margin-bottom: 4px; border-radius: 2px; }
+.tp-hero { height: 50px; margin-bottom: 6px; border-radius: 4px; }
+.tp-row { display: flex; gap: 4px; }
+.tp-card { flex: 1; height: 36px; border-radius: 3px; }
+
+/* Netflix preview */
+.netflix-preview { background: #141414; }
+.netflix-preview .tp-nav { background: rgba(255,255,255,0.1); }
+.netflix-preview .tp-hero { background: linear-gradient(135deg, #e50914, #831010); }
+.netflix-preview .tp-card { background: #2a2a2a; }
+
+/* mTrack preview */
+.mtrack-preview { background: #0a0e17; }
+.mtrack-preview .tp-nav { background: rgba(255,255,255,0.08); }
+.mtrack-preview .tp-hero { background: linear-gradient(135deg, #2563eb, #1e40af); }
+.mtrack-preview .tp-card { background: #1a2236; }
+
+/* Apple preview */
+.apple-preview { background: #000; }
+.apple-preview .tp-nav { background: rgba(255,255,255,0.06); }
+.apple-preview .tp-hero { background: linear-gradient(135deg, #0071e3, #bf5af2); }
+.apple-preview .tp-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); }
+
+/* Disney preview */
+.disney-preview { background: #040714; }
+.disney-preview .tp-nav { background: rgba(255,255,255,0.05); }
+.disney-preview .tp-hero { background: linear-gradient(135deg, #0063e5, #1ce783); }
+.disney-preview .tp-card { background: #151c28; }
+
+/* Prime preview */
+.prime-preview { background: #0f171e; }
+.prime-preview .tp-nav { background: rgba(255,255,255,0.06); }
+.prime-preview .tp-hero { background: linear-gradient(135deg, #00a8e1, #1a242f); }
+.prime-preview .tp-card { background: #243040; }
+
+/* Custom preview */
+.custom-preview { background: #0d1117; }
+.custom-preview .tp-nav { background: rgba(255,255,255,0.05); }
+.custom-preview .tp-hero { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+.custom-preview .tp-card { background: #21262d; }
+
+.theme-name { font-size: 14px; font-weight: 700; display: block; margin-bottom: 2px; }
+.theme-desc { font-size: 11px; color: var(--text3); }

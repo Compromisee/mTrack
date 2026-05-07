@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mTrack — Watch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('mtrack-theme') || 'mtrack');</script>
+</head>
+<body class="watch-page">
+<nav class="watch-nav">
+    <a href="/pages/dashboard.html" class="back-btn"><span class="material-icons-round">arrow_back</span><span>Back</span></a>
+    <div class="watch-nav-title" id="watchNavTitle">Loading...</div>
+    <div class="watch-nav-right">
+        <div class="source-selector">
+            <label>Source:</label>
+            <select id="sourceSelect">
+                <option value="spencerdevs">SpencerDevs</option>
+                <option value="vidfast">VidFast</option>
+                <option value="mapple">Mapple</option>
+                <option value="vidking">VidKing</option>
+            </select>
+        </div>
+    </div>
+</nav>
+
+<div class="player-container">
+    <div class="player-wrapper" id="playerWrapper">
+        <div class="player-loading">
+            <span class="material-icons-round spin">autorenew</span>
+            <p>Loading player...</p>
+        </div>
+    </div>
+</div>
+
+<div class="watch-content">
+    <div class="watch-info">
+        <div class="watch-poster" id="watchPoster"></div>
+        <div class="watch-details">
+            <h1 id="watchTitle">Loading...</h1>
+            <div class="watch-meta" id="watchMeta"></div>
+            <p class="watch-overview" id="watchOverview"></p>
+        </div>
+    </div>
+
+    <!-- TV: Season & Episode Selector -->
+    <div class="tv-section" id="tvSection" style="display:none">
+        <div class="tv-controls">
+            <div class="season-selector">
+                <h3><span class="material-icons-round">folder</span> Seasons</h3>
+                <div class="season-tabs" id="seasonTabs"></div>
+            </div>
+            <div class="ep-now-playing" id="epNowPlaying"></div>
+        </div>
+        <div class="episodes-grid" id="episodesGrid"></div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand"><span class="material-icons-round">play_circle</span> mTrack</div>
+        <div class="footer-links">
+            <a href="https://github.com/yourusername" target="_blank"><span class="material-icons-round">code</span> GitHub</a>
+            <a href="https://discord.gg/yourinvite" target="_blank"><span class="material-icons-round">forum</span> Discord</a>
+            <a href="https://reddit.com/u/yourusername" target="_blank"><span class="material-icons-round">public</span> Reddit</a>
+        </div>
+        <p class="footer-copy">Built with ♥ — © 2024 mTrack</p>
+    </div>
+</footer>
+
+<script>
+    const $ = id => document.getElementById(id);
+    const TMDB_IMG = 'https://image.tmdb.org/t/p/';
+    const TMDB_KEY = localStorage.getItem('tmdb_api_key') || '';
+    const params = new URLSearchParams(window.location.search);
+    const tmdbId = params.get('id');
+    const mediaType = params.get('type') || 'movie';
+    let currentSeason = parseInt(params.get('s')) || 1;
+    let currentEpisode = parseInt(params.get('e')) || 1;
+    let showData = null;
+    let seasonData = null;
+
+    const SOURCES = {
+        spencerdevs: { movie: id => `https://spencerdevs.xyz/movie/${id}`, tv: (id,s,e) => `https://spencerdevs.xyz/tv/${id}/${s}/${e}` },
+        vidfast: { movie: id => `https://vidfast.net/movie/${id}`, tv: (id,s,e) => `https://vidfast.net/tv/${id}/${s}/${e}` },
+        mapple: { movie: id => `https://mapple.uk/movie/${id}`, tv: (id,s,e) => `https://mapple.uk/tv/${id}/${s}/${e}` },
+        vidking: { movie: id => `https://www.vidking.net/movie/${id}`, tv: (id,s,e) => `https://www.vidking.net/tv/${id}/${s}/${e}` }
+    };
+
+    const defSource = localStorage.getItem('mtrack-default-source') || 'spencerdevs';
+    $('sourceSelect').value = defSource;
+
+    async function init() {
+        if (!tmdbId || !TMDB_KEY) {
+            $('watchTitle').textContent = 'Missing data';
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${TMDB_KEY}`);
+            showData = await res.json();
+
+            const title = showData.title || showData.name || 'Unknown';
+            const year = (showData.release_date || showData.first_air_date || '').substring(0, 4);
+            const genres = (showData.genres || []).map(g => g.name).join(', ');
+            const runtime = showData.runtime
+                ? `${showData.runtime} min`
+                : showData.number_of_seasons
+                    ? `${showData.number_of_seasons} Season${showData.number_of_seasons > 1 ? 's' : ''}`
+                    : '';
+
+            document.title = `mTrack — ${title}`;
+            $('watchNavTitle').textContent = title;
+            $('watchTitle').textContent = title;
+            $('watchOverview').textContent = showData.overview || '';
+            $('watchMeta').innerHTML = `
+          <span>${year}</span>
+          ${genres ? `<span>${genres}</span>` : ''}
+          ${runtime ? `<span>${runtime}</span>` : ''}
+          ${showData.vote_average ? `<span class="tmdb-badge">★ ${showData.vote_average.toFixed(1)}</span>` : ''}
+        `;
+
+            if (showData.poster_path) {
+                $('watchPoster').innerHTML = `<img src="${TMDB_IMG}w300${showData.poster_path}" alt="${title}">`;
+            }
+
+            loadPlayer();
+
+            if (mediaType === 'tv' && showData.number_of_seasons) {
+                $('tvSection').style.display = '';
+                renderSeasonTabs(showData.number_of_seasons);
+                await loadSeason(currentSeason);
+            }
+
+            $('sourceSelect').addEventListener('change', loadPlayer);
+
+        } catch (e) {
+            console.error(e);
+            $('watchTitle').textContent = 'Failed to load';
+        }
+    }
+
+    function loadPlayer() {
+        const source = $('sourceSelect').value;
+        let url;
+        if (mediaType === 'movie') {
+            url = SOURCES[source].movie(tmdbId);
+        } else {
+            url = SOURCES[source].tv(tmdbId, currentSeason, currentEpisode);
+        }
+        $('playerWrapper').innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" style="width:100%;height:100%;border:0;border-radius:12px;"></iframe>`;
+        updateNowPlaying();
+        updateURL();
+    }
+
+    function updateNowPlaying() {
+        if (mediaType !== 'tv') return;
+        const epInfo = $('epNowPlaying');
+        let epName = `Episode ${currentEpisode}`;
+        if (seasonData && seasonData.episodes) {
+            const ep = seasonData.episodes.find(e => e.episode_number === currentEpisode);
+            if (ep) epName = ep.name || epName;
+        }
+        epInfo.innerHTML = `
+        <div class="now-playing-badge">
+          <span class="material-icons-round">play_circle</span>
+          <span>Now Playing: S${currentSeason} E${currentEpisode} — ${epName}</span>
+        </div>
+      `;
+    }
+
+    function updateURL() {
+        if (mediaType !== 'tv') return;
+        const url = new URL(window.location);
+        url.searchParams.set('s', currentSeason);
+        url.searchParams.set('e', currentEpisode);
+        window.history.replaceState({}, '', url);
+    }
+
+    function renderSeasonTabs(count) {
+        let html = '';
+        for (let i = 1; i <= count; i++) {
+            html += `<button class="season-tab ${i === currentSeason ? 'active' : ''}" onclick="loadSeason(${i})">
+          <span class="material-icons-round">folder</span> Season ${i}
+        </button>`;
+        }
+        $('seasonTabs').innerHTML = html;
+    }
+
+    async function loadSeason(num) {
+        currentSeason = num;
+
+        // If switching season, reset to ep 1 unless URL says otherwise
+        if (num !== parseInt(params.get('s'))) {
+            currentEpisode = 1;
+        }
+
+        // Update active tab
+        document.querySelectorAll('.season-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.season-tab').forEach(t => {
+            if (t.textContent.includes(`Season ${num}`)) t.classList.add('active');
+        });
+
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${num}?api_key=${TMDB_KEY}`);
+            seasonData = await res.json();
+
+            if (!seasonData.episodes || !seasonData.episodes.length) {
+                $('episodesGrid').innerHTML = '<p class="ep-empty"><span class="material-icons-round">info</span> No episodes available for this season</p>';
+                return;
+            }
+
+            $('episodesGrid').innerHTML = seasonData.episodes.map(ep => `
+          <div class="episode-card ${ep.episode_number === currentEpisode ? 'active' : ''}"
+               onclick="playEpisode(${ep.episode_number}, this)"
+               id="ep-${ep.episode_number}">
+            <div class="ep-thumb">
+              ${ep.still_path
+                ? `<img src="${TMDB_IMG}w300${ep.still_path}" alt="E${ep.episode_number}" loading="lazy">`
+                : `<div class="ep-thumb-placeholder"><span class="material-icons-round">movie</span></div>`
+            }
+              <div class="ep-play-overlay">
+                <span class="material-icons-round">play_circle</span>
+              </div>
+              ${ep.runtime ? `<span class="ep-runtime">${ep.runtime}m</span>` : ''}
+            </div>
+            <div class="ep-info">
+              <div class="ep-number-row">
+                <span class="ep-number">E${ep.episode_number}</span>
+                ${ep.episode_number === currentEpisode ? '<span class="ep-playing-badge"><span class="material-icons-round">play_arrow</span> Playing</span>' : ''}
+              </div>
+              <h4>${ep.name || `Episode ${ep.episode_number}`}</h4>
+              <p>${ep.overview || 'No description available.'}</p>
+              <div class="ep-meta">
+                ${ep.air_date ? `<span><span class="material-icons-round">calendar_today</span> ${ep.air_date}</span>` : ''}
+                ${ep.vote_average ? `<span><span class="material-icons-round">star</span> ${ep.vote_average.toFixed(1)}</span>` : ''}
+                ${ep.runtime ? `<span><span class="material-icons-round">schedule</span> ${ep.runtime} min</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+            loadPlayer();
+
+            // Scroll to active episode
+            setTimeout(() => {
+                const activeEp = document.getElementById(`ep-${currentEpisode}`);
+                if (activeEp) activeEp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 200);
+
+        } catch (e) {
+            console.error(e);
+            $('episodesGrid').innerHTML = '<p class="ep-empty"><span class="material-icons-round">error</span> Failed to load episodes</p>';
+        }
+    }
+
+    function playEpisode(epNum, el) {
+        currentEpisode = epNum;
+        document.querySelectorAll('.episode-card').forEach(c => {
+            c.classList.remove('active');
+            // Remove playing badge from all
+            const badge = c.querySelector('.ep-playing-badge');
+            if (badge) badge.remove();
+        });
+        if (el) {
+            el.classList.add('active');
+            // Add playing badge
+            const numRow = el.querySelector('.ep-number-row');
+            if (numRow && !numRow.querySelector('.ep-playing-badge')) {
+                numRow.insertAdjacentHTML('beforeend', '<span class="ep-playing-badge"><span class="material-icons-round">play_arrow</span> Playing</span>');
+            }
+        }
+        loadPlayer();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    init();
+</script>
+</body>
+</html>

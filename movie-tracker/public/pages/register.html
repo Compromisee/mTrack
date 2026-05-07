@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mTrack — Create Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #06080d;
+            --bg2: #0c1018;
+            --bg3: #141a28;
+            --bg4: #1e2840;
+            --surface: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.06);
+            --text: #eef2ff;
+            --text2: #8090b0;
+            --text3: #4a5670;
+            --accent: #8b5cf6;
+            --accent2: #a78bfa;
+            --accent-glow: rgba(139,92,246,0.15);
+            --red: #ef4444;
+            --green: #22c55e;
+            --font: 'Inter', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html { height: 100%; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.3s; }
+        a:hover { color: var(--accent2); }
+        ::selection { background: var(--accent); color: #fff; }
+
+        /* Dot Grid */
+        .dot-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+        .dot-grid canvas { width: 100%; height: 100%; }
+
+        /* Blobs */
+        .gradient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.07; animation: blobFloat 20s ease-in-out infinite; }
+        .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -15%; right: -10%; }
+        .blob-2 { width: 500px; height: 500px; background: #3b82f6; bottom: -10%; left: -10%; animation-delay: -7s; animation-duration: 25s; }
+        .blob-3 { width: 350px; height: 350px; background: #ec4899; top: 60%; left: 50%; animation-delay: -12s; animation-duration: 18s; }
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(40px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(30px, 40px) scale(1.02); }
+        }
+
+        /* Particles */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .particle { position: absolute; width: 2px; height: 2px; background: var(--accent); border-radius: 50%; opacity: 0; animation: particleFloat linear infinite; }
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { opacity: 0; transform: translateY(-20vh) scale(1); }
+        }
+
+        /* Auth Card */
+        .auth-container { position: relative; z-index: 10; width: 100%; max-width: 440px; padding: 20px; }
+
+        .auth-card {
+            background: rgba(12,16,24,0.6);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 44px 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 20px 60px rgba(0,0,0,0.5), 0 0 120px var(--accent-glow);
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .auth-card:hover {
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 25px 80px rgba(0,0,0,0.6), 0 0 160px rgba(139,92,246,0.1);
+            transform: translateY(-2px);
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, transparent 30%, rgba(139,92,246,0.1) 50%, transparent 70%);
+            background-size: 200% 200%;
+            animation: shimmer 6s ease infinite;
+            z-index: -1;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 200%; } 100% { background-position: -200% -200%; } }
+
+        /* Logo */
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .logo-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 16px; margin-bottom: 14px;
+            box-shadow: 0 8px 24px var(--accent-glow);
+            animation: logoIn 0.8s var(--ease-out) both;
+        }
+        @keyframes logoIn { from { opacity: 0; transform: scale(0.5) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+        .logo-icon .material-icons-round { font-size: 28px; color: #fff; }
+        .auth-logo h1 {
+            font-size: 28px; font-weight: 800; letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            animation: textIn 0.8s var(--ease-out) 0.1s both;
+        }
+        .auth-logo p { color: var(--text3); font-size: 14px; margin-top: 6px; animation: textIn 0.8s var(--ease-out) 0.2s both; }
+        @keyframes textIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Error */
+        .auth-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 12px 14px; color: var(--red); font-size: 13px; margin-bottom: 18px; display: none; }
+        .auth-error.show { display: flex; align-items: center; gap: 8px; }
+
+        /* Fields */
+        .field { position: relative; margin-bottom: 18px; animation: fieldIn 0.6s var(--ease-out) both; }
+        .field:nth-child(1) { animation-delay: 0.3s; }
+        .field:nth-child(2) { animation-delay: 0.38s; }
+        .field:nth-child(3) { animation-delay: 0.46s; }
+        @keyframes fieldIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .field-inner { position: relative; display: flex; align-items: center; }
+        .field-icon { position: absolute; left: 16px; color: var(--text3); font-size: 20px; transition: color 0.2s; z-index: 2; pointer-events: none; }
+
+        .field input {
+            width: 100%; padding: 16px 16px 16px 48px;
+            background: var(--bg3); border: 1px solid var(--border); border-radius: 12px;
+            color: var(--text); font-family: var(--font); font-size: 14px; outline: none;
+            transition: border-color 0.2s; position: relative; z-index: 1;
+        }
+        .field input::placeholder { color: var(--text3); }
+        .field input:focus { border-color: var(--accent); background: rgba(20,26,40,0.8); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .field input:focus ~ .field-icon { color: var(--accent); }
+
+        .field-glow { position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); border-radius: 1px; transition: width 0.3s, left 0.3s; z-index: 2; }
+        .field input:focus ~ .field-glow { width: 80%; left: 10%; }
+
+        /* Password Strength */
+        .pw-strength { display: flex; gap: 4px; margin-top: 8px; height: 3px; }
+        .pw-bar { flex: 1; border-radius: 2px; background: var(--bg4); transition: background 0.2s; }
+        .pw-bar.weak { background: var(--red); }
+        .pw-bar.medium { background: var(--accent); }
+        .pw-bar.strong { background: var(--green); }
+
+        /* Terms Checkbox */
+        .terms-row {
+            display: flex; align-items: flex-start; gap: 10px;
+            margin-bottom: 20px; font-size: 12px; color: var(--text3);
+            animation: fieldIn 0.6s var(--ease-out) 0.52s both;
+            line-height: 1.5;
+        }
+        .terms-row input[type="checkbox"] {
+            width: 16px; height: 16px; margin-top: 2px;
+            accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
+        }
+        .terms-row label { cursor: pointer; }
+        .terms-row a { color: var(--accent2); text-decoration: underline; text-underline-offset: 2px; }
+        .terms-row a:hover { color: var(--accent); }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            color: #fff; border: none; border-radius: 12px;
+            font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            position: relative; overflow: hidden; transition: box-shadow 0.2s, background 0.2s;
+            animation: fieldIn 0.6s var(--ease-out) 0.55s both;
+        }
+        .btn-submit:hover { box-shadow: 0 8px 30px var(--accent-glow); }
+        .btn-submit .material-icons-round { font-size: 20px; }
+
+        .btn-submit.loading { pointer-events: none; opacity: 0.7; }
+        .btn-submit.loading .btn-text, .btn-submit.loading .btn-icon { visibility: hidden; }
+        .btn-submit.loading::after { content: ''; position: absolute; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Footer */
+        .auth-footer { text-align: center; margin-top: 22px; font-size: 13px; color: var(--text3); animation: textIn 0.8s var(--ease-out) 0.65s both; }
+        .auth-footer a { color: var(--text); font-weight: 600; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; animation: textIn 0.8s var(--ease-out) 0.5s both; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .divider span { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; }
+
+        .social-hint { display: flex; justify-content: center; gap: 12px; margin-top: 16px; animation: textIn 0.8s var(--ease-out) 0.7s both; }
+        .social-dot {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+            color: var(--text3); font-size: 18px; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s; text-decoration: none;
+        }
+        .social-dot:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        /* ============================================================
+           TERMS & CONDITIONS MODAL
+           ============================================================ */
+        .terms-modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .terms-modal-bg.active { display: flex; }
+
+        .terms-modal {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .terms-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terms-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .terms-header h2 .material-icons-round { color: var(--accent); font-size: 22px; }
+
+        .terms-close {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg3); border: none; border-radius: 8px;
+            color: var(--text2); cursor: pointer; transition: background 0.2s, color 0.2s;
+        }
+        .terms-close:hover { background: var(--bg4); color: var(--text); }
+
+        .terms-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .terms-body h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 20px 0 8px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .terms-body h3:first-child { margin-top: 0; }
+        .terms-body h3 .material-icons-round { font-size: 18px; color: var(--accent); }
+
+        .terms-body p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .terms-body ul {
+            margin: 0 0 12px 20px;
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+        .terms-body ul li { margin-bottom: 6px; }
+
+        .terms-body .disclaimer-box {
+            background: rgba(239,68,68,0.06);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .terms-body .disclaimer-box h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--red);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .terms-body .disclaimer-box h4 .material-icons-round { font-size: 16px; }
+
+        .terms-body .disclaimer-box p {
+            font-size: 12px;
+            color: #b08080;
+            margin-bottom: 0;
+        }
+
+        .terms-body .edu-box {
+            background: rgba(139,92,246,0.06);
+            border: 1px solid rgba(139,92,246,0.15);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .terms-body .edu-box h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .terms-body .edu-box h4 .material-icons-round { font-size: 16px; }
+
+        .terms-body .edu-box p {
+            font-size: 12px;
+            color: #9080c0;
+            margin-bottom: 0;
+        }
+
+        .terms-body .highlight {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .terms-body .last-updated {
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .terms-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .terms-footer p {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        .btn-terms-accept {
+            padding: 10px 24px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-terms-accept:hover { background: var(--accent2); }
+
+        @media (max-width: 500px) {
+            .auth-card { padding: 32px 22px; border-radius: 16px; }
+            .auth-logo h1 { font-size: 24px; }
+            .field input { padding: 14px 14px 14px 44px; }
+            .field-icon { left: 14px; font-size: 18px; }
+            .terms-modal { max-height: 90vh; }
+            .terms-header { padding: 16px; }
+            .terms-body { padding: 16px; }
+            .terms-footer { padding: 12px 16px; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="gradient-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<div class="dot-grid"><canvas id="dotCanvas"></canvas></div>
+<div class="particles" id="particles"></div>
+
+<!-- Terms & Conditions Modal -->
+<div class="terms-modal-bg" id="termsModal">
+    <div class="terms-modal">
+        <div class="terms-header">
+            <h2><span class="material-icons-round">gavel</span> Terms & Conditions</h2>
+            <button class="terms-close" id="termsClose"><span class="material-icons-round">close</span></button>
+        </div>
+
+        <div class="terms-body">
+
+            <div class="edu-box">
+                <h4><span class="material-icons-round">school</span> Educational Purpose Only</h4>
+                <p>mTrack is a <span class="highlight">student/educational project</span> built solely for the purpose of learning web development, including HTML, CSS, JavaScript, and Node.js. This application is <span class="highlight">not intended for commercial use</span>, profit, or distribution as a production-grade service.</p>
+            </div>
+
+            <h3><span class="material-icons-round">article</span> 1. Acceptance of Terms</h3>
+            <p>By creating an account and using mTrack ("the Service"), you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions. If you do not agree, do not use the Service.</p>
+
+            <h3><span class="material-icons-round">info</span> 2. Nature of Service</h3>
+            <p>mTrack is a <span class="highlight">personal movie and TV show tracking tool</span> that allows users to:</p>
+            <ul>
+                <li>Search for movies and TV shows using The Movie Database (TMDB) API</li>
+                <li>Maintain a personal watchlist and track viewing history</li>
+                <li>Rate and add notes to titles</li>
+                <li>Access third-party streaming links</li>
+            </ul>
+            <p>mTrack <span class="highlight">does not host, store, upload, or distribute</span> any copyrighted video content. All media metadata (titles, descriptions, posters, ratings) is provided by TMDB under their API terms of use.</p>
+
+            <h3><span class="material-icons-round">link</span> 3. Third-Party Links & Content</h3>
+            <p>mTrack may provide links to third-party websites and streaming services. These links are provided <span class="highlight">for informational and educational purposes only</span>. mTrack:</p>
+            <ul>
+                <li>Does not control, operate, or endorse any third-party service</li>
+                <li>Is not responsible for the content, availability, or legality of third-party sites</li>
+                <li>Does not guarantee the accuracy, safety, or functionality of external links</li>
+                <li>Makes no warranties regarding third-party content or services</li>
+            </ul>
+            <p>Users access third-party links <span class="highlight">entirely at their own risk and discretion</span>. It is the user's sole responsibility to ensure compliance with applicable laws in their jurisdiction when accessing external content.</p>
+
+            <h3><span class="material-icons-round">shield</span> 4. User Responsibilities</h3>
+            <p>By using mTrack, you agree to:</p>
+            <ul>
+                <li>Use the Service only for lawful, personal, and educational purposes</li>
+                <li>Not use the Service to infringe upon any copyright, trademark, or intellectual property rights</li>
+                <li>Not attempt to reverse-engineer, exploit, or compromise the Service</li>
+                <li>Provide accurate information during account registration</li>
+                <li>Maintain the confidentiality of your account credentials</li>
+                <li>Comply with all applicable local, national, and international laws</li>
+            </ul>
+
+            <h3><span class="material-icons-round">security</span> 5. Privacy & Data</h3>
+            <p>mTrack stores minimal user data required for functionality:</p>
+            <ul>
+                <li>Username, email, and a hashed password for authentication</li>
+                <li>Your movie/TV show watchlist data, ratings, and notes</li>
+                <li>Your TMDB API key is stored <span class="highlight">locally in your browser only</span> and is never sent to our servers</li>
+            </ul>
+            <p>We do not sell, share, or distribute your personal data to any third parties. Data is stored locally on the server running this application.</p>
+
+            <h3><span class="material-icons-round">copyright</span> 6. Intellectual Property</h3>
+            <p>All movie and TV show metadata, including titles, descriptions, posters, backdrop images, and ratings, are the property of their respective owners and are provided through the TMDB API. mTrack claims <span class="highlight">no ownership</span> over any third-party content displayed within the application.</p>
+            <p>The mTrack application code itself is an educational project and may be subject to its own license terms as specified by the developer.</p>
+
+            <div class="disclaimer-box">
+                <h4><span class="material-icons-round">warning</span> Legal Disclaimer</h4>
+                <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+                <p style="margin-top: 8px;">IN NO EVENT SHALL THE DEVELOPER(S) OF mTrack BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF DATA, PROFITS, OR GOODWILL.</p>
+                <p style="margin-top: 8px;">THE DEVELOPER(S) ARE NOT RESPONSIBLE FOR ANY CONTENT ACCESSED THROUGH THIRD-PARTY LINKS PROVIDED WITHIN THE SERVICE. USERS ASSUME ALL RISK AND LIABILITY ASSOCIATED WITH ACCESSING EXTERNAL CONTENT.</p>
+            </div>
+
+            <h3><span class="material-icons-round">block</span> 7. Prohibited Use</h3>
+            <p>You may not use mTrack to:</p>
+            <ul>
+                <li>Access, stream, download, or distribute copyrighted content without authorization</li>
+                <li>Violate any applicable laws or regulations in your jurisdiction</li>
+                <li>Engage in any activity that could harm, disrupt, or damage the Service or its users</li>
+                <li>Misrepresent your identity or impersonate another person</li>
+                <li>Use automated systems (bots, scrapers) to access the Service</li>
+            </ul>
+
+            <h3><span class="material-icons-round">update</span> 8. Modifications</h3>
+            <p>The developer reserves the right to modify, update, or discontinue the Service at any time without prior notice. These Terms may be updated periodically, and continued use of the Service constitutes acceptance of any changes.</p>
+
+            <h3><span class="material-icons-round">cancel</span> 9. Termination</h3>
+            <p>The developer reserves the right to terminate or suspend any user account at any time, for any reason, without prior notice. Upon termination, your right to use the Service ceases immediately.</p>
+
+            <h3><span class="material-icons-round">balance</span> 10. Governing Law</h3>
+            <p>These Terms shall be governed by and construed in accordance with applicable laws. Any disputes arising from these Terms or the use of the Service shall be resolved through appropriate legal channels in the relevant jurisdiction.</p>
+
+            <div class="edu-box">
+                <h4><span class="material-icons-round">lightbulb</span> Reminder</h4>
+                <p>This application was created as an <span class="highlight">educational exercise</span> to learn and demonstrate web development skills. It is not a commercial product. By using mTrack, you acknowledge that it is a learning project and agree to use it responsibly and in accordance with all applicable laws.</p>
+            </div>
+
+            <p class="last-updated">Last updated: January 2025 — mTrack Educational Project</p>
+        </div>
+
+        <div class="terms-footer">
+            <p>By clicking "I Accept", you agree to these terms.</p>
+            <button class="btn-terms-accept" id="termsAccept">I Accept</button>
+        </div>
+    </div>
+</div>
+
+<!-- Auth Card -->
+<div class="auth-container">
+    <div class="auth-card" id="authCard">
+
+        <div class="auth-logo">
+            <div class="logo-icon"><span class="material-icons-round">person_add</span></div>
+            <h1>mTrack</h1>
+            <p>Create your account</p>
+        </div>
+
+        <div class="auth-error" id="errorMsg">
+            <span class="material-icons-round" style="font-size:16px">error</span>
+            <span id="errorText"></span>
+        </div>
+
+        <form id="registerForm" autocomplete="off">
+            <div class="field">
+                <div class="field-inner">
+                    <span class="material-icons-round field-icon">person</span>
+                    <input type="text" id="username" placeholder="Username" required>
+                    <div class="field-glow"></div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="field-inner">
+                    <span class="material-icons-round field-icon">email</span>
+                    <input type="email" id="email" placeholder="Email" required>
+                    <div class="field-glow"></div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="field-inner">
+                    <span class="material-icons-round field-icon">lock</span>
+                    <input type="password" id="password" placeholder="Password (6+ chars)" required minlength="6">
+                    <div class="field-glow"></div>
+                </div>
+                <div class="pw-strength" id="pwStrength">
+                    <div class="pw-bar" id="bar1"></div>
+                    <div class="pw-bar" id="bar2"></div>
+                    <div class="pw-bar" id="bar3"></div>
+                    <div class="pw-bar" id="bar4"></div>
+                </div>
+            </div>
+
+            <div class="terms-row">
+                <input type="checkbox" id="termsCheck" required>
+                <label for="termsCheck">I agree to the <a href="#" id="openTerms">Terms & Conditions</a> and acknowledge this is an educational project. I understand that mTrack does not host or distribute any content.</label>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <span class="btn-text">Create Account</span>
+                <span class="material-icons-round btn-icon">arrow_forward</span>
+            </button>
+        </form>
+
+        <div class="divider"><span>or</span></div>
+
+        <p class="auth-footer">
+            Already have an account? <a href="/pages/login.html">Sign in</a>
+        </p>
+
+        <div class="social-hint">
+            <a href="https://github.com/Compromisee" target="_blank" class="social-dot"><span class="material-icons-round">code</span></a>
+            <a href="https://discord.gg/yxbEGDnvac" target="_blank" class="social-dot"><span class="material-icons-round">forum</span></a>
+            <a href="https://reddit.com/u/yourusername" target="_blank" class="social-dot"><span class="material-icons-round">public</span></a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ============ DOT MATRIX ============
+    const canvas = document.getElementById('dotCanvas');
+    const ctx = canvas.getContext('2d');
+    let mouseX = -1000, mouseY = -1000;
+    const dotSpacing = 28, dots = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        dots.length = 0;
+        for (let x = dotSpacing; x < canvas.width; x += dotSpacing)
+            for (let y = dotSpacing; y < canvas.height; y += dotSpacing)
+                dots.push({ x, y, baseAlpha: 0.12, alpha: 0.12, size: 1 });
+    }
+
+    function drawDots() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        dots.forEach(dot => {
+            const dx = mouseX - dot.x, dy = mouseY - dot.y, dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 150) {
+                const i = 1 - dist / 150;
+                dot.alpha += (0.12 + i * 0.7 - dot.alpha) * 0.15;
+                dot.size += (1 + i * 3 - dot.size) * 0.15;
+                ctx.fillStyle = `rgba(139, 92, 246, ${dot.alpha})`;
+            } else {
+                dot.alpha += (dot.baseAlpha - dot.alpha) * 0.08;
+                dot.size += (1 - dot.size) * 0.08;
+                ctx.fillStyle = `rgba(100, 120, 160, ${dot.alpha})`;
+            }
+            ctx.beginPath(); ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2); ctx.fill();
+        });
+        requestAnimationFrame(drawDots);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+    document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+    resizeCanvas(); drawDots();
+
+    // ============ PARTICLES ============
+    const particlesEl = document.getElementById('particles');
+    for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.width = p.style.height = (Math.random() * 3 + 1) + 'px';
+        p.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        const colors = ['rgba(139,92,246,0.5)', 'rgba(59,130,246,0.4)', 'rgba(236,72,153,0.3)', 'rgba(255,255,255,0.2)'];
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particlesEl.appendChild(p);
+    }
+
+    // ============ CARD TILT ============
+    const card = document.getElementById('authCard');
+    card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `perspective(800px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg) translateY(-2px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+
+    // ============ PASSWORD STRENGTH ============
+    document.getElementById('password').addEventListener('input', e => {
+        const val = e.target.value;
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
+
+        ['bar1','bar2','bar3','bar4'].forEach((id, i) => {
+            const bar = document.getElementById(id);
+            bar.className = 'pw-bar';
+            if (i < score) bar.classList.add(score <= 1 ? 'weak' : score <= 2 ? 'medium' : 'strong');
+        });
+    });
+
+    // ============ TERMS MODAL ============
+    const termsModal = document.getElementById('termsModal');
+    const termsCheck = document.getElementById('termsCheck');
+
+    document.getElementById('openTerms').addEventListener('click', e => {
+        e.preventDefault();
+        termsModal.classList.add('active');
+    });
+
+    document.getElementById('termsClose').addEventListener('click', () => {
+        termsModal.classList.remove('active');
+    });
+
+    termsModal.addEventListener('click', e => {
+        if (e.target === termsModal) termsModal.classList.remove('active');
+    });
+
+    document.getElementById('termsAccept').addEventListener('click', () => {
+        termsCheck.checked = true;
+        termsModal.classList.remove('active');
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') termsModal.classList.remove('active');
+    });
+
+    // ============ FORM SUBMIT ============
+    document.getElementById('registerForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const err = document.getElementById('errorMsg');
+        const errText = document.getElementById('errorText');
+
+        if (!termsCheck.checked) {
+            errText.textContent = 'You must accept the Terms & Conditions';
+            err.classList.add('show');
+            return;
+        }
+
+        err.classList.remove('show');
+        btn.classList.add('loading');
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+            btn.classList.remove('loading');
+
+            if (data.success) {
+                card.style.transform = 'scale(0.95)';
+                card.style.opacity = '0';
+                card.style.transition = 'all 0.4s ease';
+                setTimeout(() => { window.location.href = '/pages/dashboard.html'; }, 400);
+            } else {
+                errText.textContent = data.error;
+                err.classList.add('show');
+            }
+        } catch {
+            btn.classList.remove('loading');
+            errText.textContent = 'Connection failed';
+            err.classList.add('show');
+        }
+    });
+</script>
+</body>
+</html>
