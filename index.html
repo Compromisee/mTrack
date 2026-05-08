@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>mTrack — Self-Hosted Movie Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+/* ─── RESET ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: #080808;
+  color: #ece7db;
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── VARIABLES ──────────────────────────────────── */
+:root {
+  --bg:       #080808;
+  --bg2:      #0d0d0d;
+  --surface:  #111111;
+  --border:   #1e1e1e;
+  --text:     #ece7db;
+  --muted:    #464240;
+  --gold:     #c8a84b;
+  --gold-dim: rgba(200,168,75,.07);
+  --bebas:    'Bebas Neue', sans-serif;
+  --corm:     'Cormorant Garamond', serif;
+  --mono:     'DM Mono', monospace;
+}
+
+/* ─── CURSOR ─────────────────────────────────────── */
+#dot  { width:6px; height:6px; border-radius:50%; background:var(--gold); position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform .06s; }
+#ring { width:30px; height:30px; border:1px solid rgba(200,168,75,.4); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:transform .16s ease; }
+
+/* ─── NAV ────────────────────────────────────────── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:200;
+  display: flex; justify-content:space-between; align-items:center;
+  padding: 1.5rem 3.5rem;
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s;
+}
+nav.stuck {
+  background: rgba(8,8,8,.92);
+  backdrop-filter: blur(16px);
+  border-color: var(--border);
+}
+.nav-logo {
+  font-family: var(--bebas);
+  font-size: 1.6rem;
+  letter-spacing: .15em;
+  color: var(--gold);
+}
+.nav-links { display:flex; gap:2.5rem; list-style:none; }
+.nav-links a {
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+  cursor: none;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: .5rem 1.4rem;
+  border: 1px solid var(--gold);
+  color: var(--gold) !important;
+  transition: background .2s, color .2s !important;
+}
+.nav-cta:hover { background: var(--gold) !important; color:#000 !important; }
+
+/* ─── HERO ───────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction:column; justify-content:center;
+  padding: 10rem 3.5rem 5rem;
+  position: relative; overflow: hidden;
+}
+
+/* Noise grain */
+.hero::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .6;
+}
+
+/* Radial glow */
+.hero-glow {
+  position:absolute; top:-10%; right:-15%;
+  width: 700px; height: 700px; border-radius:50%;
+  background: radial-gradient(ellipse, rgba(200,168,75,.06) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+  animation: glowpulse 9s ease-in-out infinite;
+}
+@keyframes glowpulse { 0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.08) translate(-20px,30px)} }
+
+/* Vertical text stripe */
+.hero-stripe {
+  position:absolute; right:3.5rem; top:50%; transform:translateY(-50%);
+  font-family: var(--mono); font-size:.55rem; letter-spacing:.4em; text-transform:uppercase;
+  color:var(--muted); writing-mode:vertical-rl; pointer-events:none; z-index:1;
+  opacity:0; animation:fadeIn .8s 1.4s forwards;
+}
+
+.hero-inner { position:relative; z-index:1; }
+
+.hero-tag {
+  font-size:.6rem; letter-spacing:.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1.4rem;
+  opacity:0; animation:slideUp .5s .2s forwards;
+}
+
+h1 {
+  font-family: var(--bebas);
+  font-size: clamp(7rem, 16vw, 16rem);
+  line-height: .86;
+  letter-spacing: .04em;
+  color: var(--text);
+  opacity:0; animation:slideUp .7s .35s forwards;
+}
+h1 .gold { color: var(--gold); }
+h1 .italic { font-family: var(--corm); font-style:italic; font-weight:300; font-size:.75em; letter-spacing:0; }
+
+.hero-sub {
+  margin-top:2.2rem; max-width:480px;
+  font-size:.8rem; line-height:1.85; color:var(--muted);
+  opacity:0; animation:slideUp .7s .55s forwards;
+}
+
+.hero-actions {
+  margin-top:2.8rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;
+  opacity:0; animation:slideUp .7s .72s forwards;
+}
+.btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.72rem 1.8rem; border:1px solid;
+  font-family:var(--mono); font-size:.65rem; font-weight:400;
+  letter-spacing:.12em; text-transform:uppercase;
+  text-decoration:none; cursor:none;
+  transition:background .22s, color .22s, border-color .22s;
+}
+.btn-primary { background:var(--gold); border-color:var(--gold); color:#000; }
+.btn-primary:hover { background:transparent; color:var(--gold); }
+.btn-ghost { background:transparent; border-color:var(--border); color:var(--muted); }
+.btn-ghost:hover { border-color:var(--muted); color:var(--text); }
+
+.hero-pills {
+  margin-top:2rem; display:flex; gap:.5rem; flex-wrap:wrap;
+  opacity:0; animation:fadeIn .6s .95s forwards;
+}
+.pill {
+  padding:.28rem .7rem; border:1px solid var(--border);
+  font-size:.55rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted);
+}
+.pill-lit { border-color:rgba(200,168,75,.3); color:rgba(200,168,75,.65); }
+
+.scroll-line {
+  position:absolute; bottom:2.8rem; left:3.5rem; z-index:1;
+  display:flex; align-items:center; gap:.8rem;
+  font-size:.57rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
+  opacity:0; animation:fadeIn .6s 1.1s forwards;
+}
+.sl-bar { width:44px; height:1px; background:var(--muted); animation:barPulse 2.2s ease-in-out infinite; }
+@keyframes barPulse { 0%,100%{width:28px;opacity:.3}50%{width:52px;opacity:.7} }
+
+/* ─── TICKER ─────────────────────────────────────── */
+.ticker { overflow:hidden; border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--surface); padding:.7rem 0; }
+.ticker-inner { display:flex; white-space:nowrap; animation:ticker 28s linear infinite; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tick-item {
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:0 2.8rem; flex-shrink:0;
+  font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
+}
+.tick-item::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+/* ─── SECTION COMMON ─────────────────────────────── */
+.section { padding:8rem 3.5rem; }
+.sec-eyebrow {
+  font-size:.58rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold);
+  display:flex; align-items:center; gap:.75rem; margin-bottom:3.5rem;
+}
+.sec-eyebrow::after { content:''; width:36px; height:1px; background:var(--gold); opacity:.35; }
+h2 { font-family:var(--corm); font-size:clamp(2.8rem,5vw,5rem); font-weight:300; letter-spacing:-.01em; line-height:1; }
+h2 em { font-style:italic; color:var(--gold); }
+h2 strong { font-family:var(--bebas); font-weight:400; letter-spacing:.06em; }
+
+/* ─── FEATURES CAROUSEL ──────────────────────────── */
+.carousel-section { padding:8rem 0; overflow:hidden; }
+.carousel-header { padding:0 3.5rem; margin-bottom:4rem; }
+.carousel-header h2 { max-width:700px; }
+
+.carousel-track-wrap { position:relative; }
+.carousel-track {
+  display:flex; gap:1px;
+  width:max-content;
+  transition:transform .5s cubic-bezier(.25,.46,.45,.94);
+}
+.carousel-slide {
+  width: 380px; flex-shrink:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:3rem 2.5rem;
+  position:relative; overflow:hidden;
+  transition:background .25s;
+}
+.carousel-slide:hover { background:#161616; }
+.carousel-slide::after {
+  content:''; position:absolute;
+  bottom:0; left:0; height:2px; width:0;
+  background:var(--gold);
+  transition:width .4s ease;
+}
+.carousel-slide:hover::after { width:100%; }
+.slide-num {
+  font-size:.55rem; letter-spacing:.2em; color:var(--muted); margin-bottom:2rem;
+}
+.slide-icon {
+  width:42px; height:42px; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:1.5rem;
+}
+.slide-icon svg { width:20px; height:20px; stroke:var(--gold); fill:none; stroke-width:1.5; }
+.slide-title {
+  font-family:var(--corm); font-size:1.7rem; font-weight:600;
+  line-height:1.1; margin-bottom:.9rem;
+}
+.slide-desc { font-size:.72rem; color:var(--muted); line-height:1.8; }
+.slide-tag {
+  display:inline-block; margin-top:1.4rem;
+  padding:.25rem .65rem; border:1px solid rgba(200,168,75,.22);
+  font-size:.55rem; letter-spacing:.15em; text-transform:uppercase;
+  color:rgba(200,168,75,.6);
+}
+
+.carousel-controls {
+  display:flex; align-items:center; gap:1.5rem;
+  padding:2.5rem 3.5rem 0;
+}
+.cc-btn {
+  width:44px; height:44px; border:1px solid var(--border);
+  background:transparent; cursor:none;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s, background .2s;
+  color:var(--muted);
+}
+.cc-btn:hover { border-color:var(--gold); background:var(--gold-dim); color:var(--gold); }
+.cc-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; }
+.cc-dots { display:flex; gap:.5rem; }
+.cc-dot {
+  width:20px; height:2px; background:var(--border);
+  transition:background .25s, width .25s;
+}
+.cc-dot.active { background:var(--gold); width:36px; }
+.cc-count { font-size:.6rem; letter-spacing:.15em; color:var(--muted); margin-left:auto; }
+
+/* ─── HORIZONTAL SCROLL PARALLAX ────────────────── */
+.hscroll-section {
+  position:relative; height:300vh; /* sticky container height */
+}
+.hscroll-sticky {
+  position:sticky; top:0; height:100vh;
+  overflow:hidden; display:flex; align-items:center;
+}
+.hscroll-track {
+  display:flex; gap:4rem; align-items:center;
+  padding:0 3.5rem;
+  will-change:transform;
+}
+.hcard {
+  flex-shrink:0;
+  width:320px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:2.5rem;
+  position:relative;
+  transition:border-color .3s;
+}
+.hcard:hover { border-color:rgba(200,168,75,.3); }
+.hcard-num {
+  font-family:var(--bebas); font-size:5rem; color:var(--border);
+  line-height:1; margin-bottom:1rem;
+  transition:color .3s;
+}
+.hcard:hover .hcard-num { color:rgba(200,168,75,.15); }
+.hcard-title {
+  font-family:var(--corm); font-size:1.4rem; font-weight:600;
+  margin-bottom:.6rem; line-height:1.1;
+}
+.hcard-body { font-size:.7rem; color:var(--muted); line-height:1.8; }
+.hcard-label {
+  margin-top:1.2rem; font-size:.55rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--muted);
+  border-top:1px solid var(--border); padding-top:.8rem;
+}
+
+/* Section label pinned */
+.hscroll-label {
+  position:absolute; left:3.5rem; top:50%; transform:translateY(-50%);
+  z-index:10; pointer-events:none;
+}
+.hscroll-label-text {
+  font-family:var(--bebas); font-size:clamp(5rem,12vw,11rem);
+  color:rgba(255,255,255,.025); line-height:1; letter-spacing:.05em;
+  white-space:nowrap;
+}
+
+/* ─── SETUP ──────────────────────────────────────── */
+.setup-section { background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.setup-inner { max-width:880px; margin:0 auto; }
+.setup-inner h2 { margin-bottom:1rem; }
+.setup-sub { font-size:.78rem; color:var(--muted); line-height:1.8; margin-bottom:3.5rem; max-width:500px; }
+
+.step-list { display:flex; flex-direction:column; gap:1px; background:var(--border); }
+.step-row {
+  background:var(--surface);
+  display:grid; grid-template-columns:4rem 1fr;
+  gap:0; align-items:stretch;
+  transition:background .2s;
+}
+.step-row:hover { background:#161616; }
+.step-n-col {
+  display:flex; align-items:center; justify-content:center;
+  border-right:1px solid var(--border);
+  padding:1.5rem;
+}
+.step-n {
+  font-family:var(--bebas); font-size:2.2rem; color:rgba(200,168,75,.25);
+  line-height:1; transition:color .2s;
+}
+.step-row:hover .step-n { color:rgba(200,168,75,.5); }
+.step-content { padding:1.8rem 2rem; }
+.step-title { font-size:.75rem; font-weight:400; letter-spacing:.06em; margin-bottom:.5rem; color:var(--text); }
+.step-desc { font-size:.7rem; color:var(--muted); line-height:1.7; }
+.step-code {
+  margin-top:.75rem; background:#0a0a0a;
+  border:1px solid var(--border); padding:.7rem 1rem;
+  font-family:var(--mono); font-size:.7rem; line-height:1.65;
+}
+.c-gold { color:var(--gold); }
+.c-green { color:#5a9e6f; }
+.c-blue  { color:#6a9fbf; }
+.c-mute  { color:var(--muted); }
+
+.alert-strip {
+  margin-top:1.5rem; padding:.9rem 1.2rem;
+  border:1px solid rgba(200,168,75,.18); background:rgba(200,168,75,.04);
+  font-size:.7rem; color:rgba(200,168,75,.65); line-height:1.65;
+  display:flex; gap:.75rem;
+}
+.alert-strip::before { content:'!'; font-family:var(--bebas); font-size:1rem; color:var(--gold); flex-shrink:0; margin-top:-.05rem; }
+
+/* ─── PAGES GRID ─────────────────────────────────── */
+.pages-section { padding:8rem 3.5rem; }
+.pages-section h2 { max-width:700px; margin-bottom:4rem; }
+.pages-grid {
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:1px; background:var(--border);
+}
+.pcard {
+  background:var(--surface); padding:2rem 1.75rem;
+  position:relative; transition:background .22s; overflow:hidden;
+}
+.pcard:hover { background:#181818; }
+.pcard::before {
+  content:''; position:absolute; top:0; left:0;
+  width:2px; height:0; background:var(--gold);
+  transition:height .35s ease;
+}
+.pcard:hover::before { height:100%; }
+.pcard-file {
+  font-size:.58rem; letter-spacing:.1em; color:var(--muted);
+  font-family:var(--mono); margin-bottom:1.2rem;
+}
+.pcard-name {
+  font-family:var(--corm); font-size:1.5rem; font-weight:600;
+  margin-bottom:.5rem; line-height:1;
+}
+.pcard-desc { font-size:.68rem; color:var(--muted); line-height:1.7; }
+.pcard-arrow {
+  position:absolute; bottom:1.5rem; right:1.5rem;
+  font-size:.7rem; color:var(--border);
+  transition:color .2s, transform .2s;
+}
+.pcard:hover .pcard-arrow { color:var(--gold); transform:translate(2px,-2px); }
+
+/* ─── FOOTER ─────────────────────────────────────── */
+footer {
+  border-top:1px solid var(--border); padding:3.5rem 3.5rem;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;
+}
+.foot-logo { font-family:var(--bebas); font-size:1.8rem; color:var(--gold); letter-spacing:.12em; }
+.foot-links { display:flex; gap:2rem; }
+.foot-links a { font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color .2s; cursor:none; }
+.foot-links a:hover { color:var(--text); }
+.foot-copy { font-size:.58rem; color:var(--muted); letter-spacing:.08em; }
+
+/* ─── REVEAL ─────────────────────────────────────── */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .65s ease, transform .65s ease; }
+.reveal.vis { opacity:1; transform:none; }
+
+/* ─── KEYFRAMES ──────────────────────────────────── */
+@keyframes slideUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+/* ─── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:900px){
+  nav { padding:1.2rem 1.5rem; }
+  .nav-links { display:none; }
+  .hero, .section, .pages-section, .setup-section { padding:6rem 1.5rem; }
+  h1 { font-size:clamp(5rem,18vw,9rem); }
+  .pages-grid { grid-template-columns:1fr 1fr; }
+  .carousel-header { padding:0 1.5rem; }
+  .carousel-controls { padding:2rem 1.5rem 0; }
+  .hscroll-track { padding:0 1.5rem; }
+  footer { padding:2.5rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="dot"></div>
+<div id="ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">mTrack</div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pages">Pages</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="https://github.com/Compromisee/mTrack" target="_blank" class="nav-cta">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-stripe">Self-Hosted · Node.js · Open Source</div>
+  <div class="hero-inner">
+    <p class="hero-tag">Free &amp; Open Source — Local First</p>
+    <h1>
+      <span class="gold">m</span>Track<br/>
+      <span class="italic">Your Cinema,</span><br/>
+      Your Server.
+    </h1>
+    <p class="hero-sub">
+      A locally-run streaming and rating site powered by the TMDB API.
+      Multi-user auth, SQL-backed history, theme switching — 
+      all running on your own machine. No cloud. No subscriptions.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/Compromisee/mTrack" target="_blank" class="btn btn-primary">Get on GitHub</a>
+      <a href="#setup" class="btn btn-ghost">Quick Setup</a>
+    </div>
+    <div class="hero-pills">
+      <span class="pill pill-lit">TMDB API</span>
+      <span class="pill pill-lit">SQL Database</span>
+      <span class="pill pill-lit">Theme Select</span>
+      <span class="pill">Node.js &gt;=18</span>
+      <span class="pill">Express</span>
+      <span class="pill">MIT</span>
+    </div>
+  </div>
+  <div class="scroll-line"><span class="sl-bar"></span>Scroll</div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="tick-item">TMDB Integration</span>
+    <span class="tick-item">SQL Database</span>
+    <span class="tick-item">User Auth</span>
+    <span class="tick-item">Theme Selector</span>
+    <span class="tick-item">Watch History</span>
+    <span class="tick-item">Rate &amp; Review</span>
+    <span class="tick-item">Express Server</span>
+    <span class="tick-item">100% Local</span>
+    <span class="tick-item">Open Source</span>
+    <span class="tick-item">Node.js Powered</span>
+    <span class="tick-item">Multi-User</span>
+    <span class="tick-item">Dashboard</span>
+    <span class="tick-item">TMDB Integration</span>
+    <span class="tick-item">SQL Database</span>
+    <span class="tick-item">User Auth</span>
+    <span class="tick-item">Theme Selector</span>
+    <span class="tick-item">Watch History</span>
+    <span class="tick-item">Rate &amp; Review</span>
+    <span class="tick-item">Express Server</span>
+    <span class="tick-item">100% Local</span>
+    <span class="tick-item">Open Source</span>
+    <span class="tick-item">Node.js Powered</span>
+    <span class="tick-item">Multi-User</span>
+    <span class="tick-item">Dashboard</span>
+  </div>
+</div>
+
+<!-- FEATURES CAROUSEL -->
+<div class="carousel-section" id="features">
+  <div class="carousel-header reveal">
+    <p class="sec-eyebrow">Features</p>
+    <h2>Everything you need.<br/><em>Nothing you don't.</em></h2>
+  </div>
+
+  <div class="carousel-track-wrap">
+    <div class="carousel-track" id="ctrack" style="padding:0 3.5rem;">
+
+      <div class="carousel-slide">
+        <p class="slide-num">01 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+        </div>
+        <h3 class="slide-title">TMDB-Powered Data</h3>
+        <p class="slide-desc">Browse millions of movies and shows with live posters, descriptions, cast, and ratings pulled directly from The Movie Database API.</p>
+        <span class="slide-tag">API Key Required</span>
+      </div>
+
+      <div class="carousel-slide">
+        <p class="slide-num">02 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+        </div>
+        <h3 class="slide-title">SQL Database</h3>
+        <p class="slide-desc">All user data — accounts, watch history, ratings — stored in a local SQL database via <span style="color:var(--gold);font-size:.68rem">database.js</span>. Zero external server setup.</p>
+        <span class="slide-tag">SQLite Local</span>
+      </div>
+
+      <div class="carousel-slide">
+        <p class="slide-num">03 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3 class="slide-title">User Accounts</h3>
+        <p class="slide-desc">Full local authentication — register, log in, manage your watchlist. Each user's data is isolated and private, stored locally.</p>
+        <span class="slide-tag">Multi-User</span>
+      </div>
+
+      <div class="carousel-slide">
+        <p class="slide-num">04 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <h3 class="slide-title">Theme Selector</h3>
+        <p class="slide-desc">Multiple themes built into <span style="color:var(--gold);font-size:.68rem">themes.css</span> and switchable live from the Settings page via <span style="color:var(--gold);font-size:.68rem">settings.js</span>. No code needed.</p>
+        <span class="slide-tag">Light / Dark +</span>
+      </div>
+
+      <div class="carousel-slide">
+        <p class="slide-num">05 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </div>
+        <h3 class="slide-title">Rate &amp; Review</h3>
+        <p class="slide-desc">Score everything you watch. Build a personal archive of your taste. Track what you loved, liked, or regretted watching at 2am.</p>
+        <span class="slide-tag">Personal Archive</span>
+      </div>
+
+      <div class="carousel-slide">
+        <p class="slide-num">06 / 06</p>
+        <div class="slide-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3 class="slide-title">Runs Locally</h3>
+        <p class="slide-desc">One command. Your machine. Your data. No cloud, no harvesting, no account to a third-party service. Just Node.js and your browser.</p>
+        <span class="slide-tag">localhost:3000</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="carousel-controls reveal">
+    <button class="cc-btn" id="cPrev" aria-label="Previous">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="cc-btn" id="cNext" aria-label="Next">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="cc-dots" id="cDots"></div>
+    <span class="cc-count" id="cCount">1 / 6</span>
+  </div>
+</div>
+
+<!-- HORIZONTAL SCROLL PARALLAX (Pages showcase) -->
+<div class="hscroll-section" id="pages">
+  <div class="hscroll-sticky">
+    <div class="hscroll-label" aria-hidden="true">
+      <div class="hscroll-label-text">PAGES</div>
+    </div>
+    <div class="hscroll-track" id="htrack">
+
+      <!-- Intro card -->
+      <div class="hcard" style="width:420px; background:transparent; border-color:rgba(200,168,75,.18);">
+        <p class="sec-eyebrow" style="margin-bottom:1.5rem">Pages</p>
+        <h2 style="font-size:clamp(2.2rem,3.5vw,3.5rem)">Five pages.<br/><em>Every flow covered.</em></h2>
+        <p style="font-size:.73rem;color:var(--muted);line-height:1.8;margin-top:1.2rem">Scroll sideways to explore every screen mTrack ships with — from browsing to settings.</p>
+      </div>
+
+      <div class="hcard">
+        <div class="hcard-num">01</div>
+        <h3 class="hcard-title">Dashboard</h3>
+        <p class="hcard-body">Your main hub. Browse TMDB results, manage your watchlist, see what's trending and what you've logged.</p>
+        <p class="hcard-label">dashboard.html</p>
+      </div>
+
+      <div class="hcard">
+        <div class="hcard-num">02</div>
+        <h3 class="hcard-title">Watch</h3>
+        <p class="hcard-body">Full movie or show detail view. Metadata, posters, your personal rating, and watch status — all in one place.</p>
+        <p class="hcard-label">watch.html</p>
+      </div>
+
+      <div class="hcard">
+        <div class="hcard-num">03</div>
+        <h3 class="hcard-title">Login</h3>
+        <p class="hcard-body">Clean local authentication. Sign in to your account — everything stored on your own machine, never a cloud.</p>
+        <p class="hcard-label">login.html</p>
+      </div>
+
+      <div class="hcard">
+        <div class="hcard-num">04</div>
+        <h3 class="hcard-title">Register</h3>
+        <p class="hcard-body">Create a new user account. Credentials are saved to the local SQL database. No email confirmation, no tracking.</p>
+        <p class="hcard-label">register.html</p>
+      </div>
+
+      <div class="hcard">
+        <div class="hcard-num">05</div>
+        <h3 class="hcard-title">Settings</h3>
+        <p class="hcard-body">Pick your theme from multiple built-in options. Manage user preferences — all handled client-side by settings.js.</p>
+        <p class="hcard-label">settings.html</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<section class="setup-section section" id="setup">
+  <div class="setup-inner">
+    <p class="sec-eyebrow reveal">Setup</p>
+    <h2 class="reveal">Live in <em>four steps.</em></h2>
+    <p class="setup-sub reveal">Everything from zero to your local movie tracker.</p>
+
+    <div class="step-list reveal">
+      <div class="step-row">
+        <div class="step-n-col"><span class="step-n">1</span></div>
+        <div class="step-content">
+          <p class="step-title">Get a Free TMDB API Key</p>
+          <p class="step-desc">Create an account at <a href="https://www.themoviedb.org" target="_blank" style="color:var(--gold);cursor:none;text-decoration:none">themoviedb.org</a> — Settings &rarr; API &rarr; Developer. Copy your v3 auth key.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-n-col"><span class="step-n">2</span></div>
+        <div class="step-content">
+          <p class="step-title">Clone &amp; Install</p>
+          <div class="step-code">
+            <span class="c-gold">$</span> git clone https://github.com/Compromisee/mTrack.git<br/>
+            <span class="c-gold">$</span> cd mTrack/movie-tracker<br/>
+            <span class="c-gold">$</span> npm install
+          </div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-n-col"><span class="step-n">3</span></div>
+        <div class="step-content">
+          <p class="step-title">Add Your API Key to data.json</p>
+          <div class="step-code">
+            {&nbsp;<span class="c-gold">"tmdb_api_key"</span>: <span class="c-green">"your_key_here"</span>&nbsp;}
+          </div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-n-col"><span class="step-n">4</span></div>
+        <div class="step-content">
+          <p class="step-title">Start &amp; Browse</p>
+          <div class="step-code">
+            <span class="c-gold">$</span> node server.js<br/>
+            <span class="c-green">ready</span> &rarr; <span class="c-blue">http://localhost:3000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-strip reveal">
+      Never commit <span class="c-gold">data.json</span> with your API key to a public repository. Add it to <span class="c-gold">.gitignore</span> before pushing.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">mTrack</div>
+  <div class="foot-links">
+    <a href="https://github.com/Compromisee/mTrack" target="_blank">GitHub</a>
+    <a href="https://github.com/Compromisee/mTrack/issues" target="_blank">Issues</a>
+    <a href="https://www.themoviedb.org/settings/api" target="_blank">TMDB API</a>
+    <a href="https://github.com/Compromisee/mTrack/blob/main/README.md" target="_blank">Docs</a>
+  </div>
+  <p class="foot-copy">MIT License &copy; Compromisee</p>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const dot=document.getElementById('dot'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){
+  dot.style.left=mx+'px'; dot.style.top=my+'px';
+  rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+
+/* ── NAV ── */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>60),{passive:true});
+
+/* ── CAROUSEL ── */
+(function(){
+  const track=document.getElementById('ctrack');
+  const slides=track.querySelectorAll('.carousel-slide');
+  const dotsWrap=document.getElementById('cDots');
+  const countEl=document.getElementById('cCount');
+  const N=slides.length;
+  let cur=0;
+
+  // build dots
+  for(let i=0;i<N;i++){
+    const d=document.createElement('div');
+    d.className='cc-dot'+(i===0?' active':'');
+    d.addEventListener('click',()=>go(i));
+    dotsWrap.appendChild(d);
+  }
+
+  function go(idx){
+    cur=Math.max(0,Math.min(N-1,idx));
+    const slideW=slides[0].offsetWidth+1; // +1 for gap:1px
+    track.style.transform=`translateX(-${cur*slideW}px)`;
+    dotsWrap.querySelectorAll('.cc-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+    countEl.textContent=`${cur+1} / ${N}`;
+  }
+
+  document.getElementById('cPrev').addEventListener('click',()=>go(cur-1));
+  document.getElementById('cNext').addEventListener('click',()=>go(cur+1));
+
+  // touch / drag
+  let startX=0,dragging=false;
+  track.addEventListener('mousedown',e=>{startX=e.clientX;dragging=true;});
+  track.addEventListener('mousemove',e=>{if(dragging)e.preventDefault();});
+  track.addEventListener('mouseup',e=>{
+    if(!dragging)return; dragging=false;
+    const dx=e.clientX-startX;
+    if(Math.abs(dx)>40) go(dx<0?cur+1:cur-1);
+  });
+  track.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>40) go(dx<0?cur+1:cur-1);
+  },{passive:true});
+})();
+
+/* ── HORIZONTAL SCROLL PARALLAX ── */
+(function(){
+  const section=document.querySelector('.hscroll-section');
+  const track=document.getElementById('htrack');
+  const cards=track.querySelectorAll('.hcard');
+
+  function update(){
+    const rect=section.getBoundingClientRect();
+    const sectionH=section.offsetHeight-window.innerHeight;
+    // progress: 0 (section top at viewport top) → 1 (section bottom at viewport bottom)
+    const progress=Math.max(0,Math.min(1,-rect.top/sectionH));
+
+    // total scrollable width = all cards + gaps minus viewport
+    const totalW=track.scrollWidth - window.innerWidth;
+    const tx=-progress*totalW;
+    track.style.transform=`translateX(${tx}px)`;
+
+    // parallax depth per card
+    cards.forEach((card,i)=>{
+      const depth=(i+1)*0.04;
+      const extra=-progress*totalW*depth;
+      card.style.transform=`translateX(${extra}px)`;
+    });
+  }
+
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update,{passive:true});
+  update();
+})();
+
+/* ── REVEAL ON SCROLL ── */
+const revObs=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('vis');revObs.unobserve(e.target);}
+}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+</script>
+</body>
+</html>
